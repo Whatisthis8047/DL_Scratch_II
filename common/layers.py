@@ -38,19 +38,19 @@ class Sigmoid:
 class Affine:
     def __init__(self, W, b):
         self.params = [W, b]
-        self.grads = [np.zeros_like(W). np.zeros_like(b)]
+        self.grads = [np.zeros_like(W), np.zeros_like(b)]
         self.x = None
 
     def forward(self, x):
         W, b = self.params
-        out = np.matmul(x, W) + b
+        out = np.dot(x, W) + b
         self.x = x
         return out
 
     def backward(self, dout):
         W, b = self.params
-        dx = np.matmul(dout, W.T)
-        dW = np.matmul(self.x.T, dout)
+        dx = np.dot(dout, W.T)
+        dW = np.dot(self.x.T, dout)
         db = np.sum(dout, axis=0)
 
         self.grads[0][...] = dW
@@ -60,17 +60,27 @@ class Affine:
 class SoftmaxWithLoss:
     def __init__(self):
         self.params, self.grads = [], []
-        self.x = None
+        self.t = None
         self.y = None
 
     def forward(self, x, t):
-        self.x = x
+        self.t = t
         self.y = softmax(x)
 
         if self.t.size == self.y.size:
             self.t = self.t.argmax(axis=1)
 
         loss = cross_entropy_error(self.y, self.t)
-
         return loss
+
+    def backward(self, dout):
+        batch_size = self.t.shape[0]
+
+        dx = self.y.copy()
+        dx[np.arange(batch_size), self.t] -= 1
+        dx *= dout
+        dx = dx / batch_size
+
+        return dx
+
 
