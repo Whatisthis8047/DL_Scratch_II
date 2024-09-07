@@ -10,7 +10,7 @@ from two_layer_net import TwoLayerNet
 max_epoch = 100
 hidden_size = 10
 batch_size = 30
-learning_rate = 0.1
+learning_rate = 1.5
 
 # 2. Load data, initialize model(Two Layer Net), Optimizer
 x, t = spiral.load_data()
@@ -46,3 +46,30 @@ for epoch in range(max_epoch):
             print(f'| epoch: {epoch+1} | iters: {iters+1} | loss: {avg_loss}')
             loss_list.append(avg_loss)
             total_loss, loss_count = 0, 0
+
+# 학습 결과 플롯
+plt.plot(np.arange(len(loss_list)), loss_list, label='train')
+plt.xlabel('반복 (x10)')
+plt.ylabel('손실')
+plt.show()
+
+# 경계 영역 플롯
+h = 0.001
+x_min, x_max = x[:, 0].min() - .1, x[:, 0].max() + .1
+y_min, y_max = x[:, 1].min() - .1, x[:, 1].max() + .1
+xx, yy = np.meshgrid(np.arange(x_min, x_max, h), np.arange(y_min, y_max, h))
+X = np.c_[xx.ravel(), yy.ravel()]
+score = model.predict(X)
+predict_cls = np.argmax(score, axis=1)
+Z = predict_cls.reshape(xx.shape)
+plt.contourf(xx, yy, Z)
+plt.axis('off')
+
+# 데이터점 플롯
+x, t = spiral.load_data()
+N = 100
+CLS_NUM = 3
+markers = ['o', 'x', '^']
+for i in range(CLS_NUM):
+    plt.scatter(x[i*N:(i+1)*N, 0], x[i*N:(i+1)*N, 1], s=40, marker=markers[i])
+plt.show()
