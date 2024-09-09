@@ -52,6 +52,7 @@ class Trainer:
         self.current_epoch += 1
 
     def plot(self, ylim=None):
+        plt.rc('font', family='AppleGothic')
         x = numpy.arange(len(self.loss_list))
         if ylim is not None:
             plt.ylim(*ylim)
@@ -122,6 +123,7 @@ class RnnlmTrainer:
             self.current_epoch += 1
 
     def plot(self, ylim=None):
+        plt.rc('font', family='AppleGothic')
         x = numpy.arange(len(self.ppl_list))
         if ylim is not None:
             plt.ylim(*ylim)
