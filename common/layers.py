@@ -1,5 +1,6 @@
 import sys
 import numpy as np
+from common.config import GPU
 from common.functions import softmax, cross_entropy_error
 
 class MatMul:
@@ -34,6 +35,26 @@ class Sigmoid:
 
     def backward(self, dout):
         dx = dout * (1.0 - self.out) * self.out
+        return dx
+
+class SigmoidWithLoss:
+    def __init__(self):
+        self.params, self.grads = [], []
+        self.loss = None
+        self.y = None
+        self.t = None
+
+    def forward(self, x, t):
+        self.t = t
+        self.y = 1 / (1 + np.exp(-x))
+        self.loss = cross_entropy_error(np.c_[1 - self.y, self.y], self.t)
+
+        return self.loss
+
+    def backward(self, dout=1):
+        batch_size = self.t.shape[0]
+
+        dx = (self.y - self.t) * dout / batch_size
         return dx
 
 class Affine:
@@ -97,11 +118,10 @@ class Embedding:
         return out
 
     def backward(self, dout):
-        dW = self.grads
+        dW, = self.grads
         dW[...] = 0
         #for i, word_id in enumerate(self.idx):
         #    dW[word_id] += dout[i]
         # or
         np.add.at(dW, self.idx, dout)
-
-        return dout
+        return None
